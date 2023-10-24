@@ -96,7 +96,7 @@ def slide_window_search(binary_warped, left_current, right_current):
         left_lane.append(good_left)
         right_lane.append(good_right)
         
-        cv2.imshow("oo", out_img)
+        cv2.imshow("out_img", out_img)
 
         if len(good_left) > minpix:
             left_current = np.int(np.mean(nonzero_x[good_left]))
@@ -158,99 +158,95 @@ def draw_lane_lines(original_image, warped_image, Minv, draw_info):
 
     return pts_mean, result
 
-# 비디오 프레임의 방향
-# flip=2
+#비디오 프레임의 방향
+flip=2
 
-# dispW=1920
-# dispH=1080
+dispW=1920
+dispH=1080
 
-# camSet = 'nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1920, height=1080, format=NV12, framerate=20/1 ! nvvidconv flip-method='+str(flip)+' ! video/x-raw, width='+str(dispW)+', height='+str(dispH)+', format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink'
-# cap = cv2.VideoCapture(camSet)
+camSet = 'nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1920, height=1080, format=NV12, framerate=20/1 ! nvvidconv flip-method='+str(flip)+' ! video/x-raw, width='+str(dispW)+', height='+str(dispH)+', format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink'
+cap = cv2.VideoCapture(camSet)
 
-# # 표시할 비디오의 출력 형식과 크기
-# frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-# ym_per_pix = 30 / 720
-# xm_per_pix = 3.7 / 720
+# 표시할 비디오의 출력 형식과 크기
+frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+ym_per_pix = 30 / 720
+xm_per_pix = 3.7 / 720
 
-img = cv2.imread('C:/Users/jiung/Downloads/17_16_07_53.png')
+#img = cv2.imread('C:/Users/jiung/Downloads/17_16_07_53.png')
+# wrapped_img, minverse = wrapping(img)
+# cv2.imshow('wrapped', wrapped_img)
+# plt.imshow(img),plt.title('Perspective')
+# plt.show()
+# cv2.waitKey(0)
 
-wrapped_img, minverse = wrapping(img)
-cv2.imshow('wrapped', wrapped_img)
+if not cap.isOpened():
+    print('영상 파일을 열 수 없습니다.')
+    exit()
 
-plt.imshow(img),plt.title('Perspective')
-plt.show()
+record = False
 
-cv2.waitKey(0)
+while True:
+    retval, img = cap.read()
+    if not retval:
+        break
 
-
-# if not cap.isOpened():
-#     print('영상 파일을 열 수 없습니다.')
-#     exit()
-
-# record = False
-
-# while True:
-#     retval, img = cap.read()
-#     if not retval:
-#         break
-
-#     cv2.imshow('Jetson nano camera', img)
+    cv2.imshow('Jetson camera', img)
     
-#     ## 조감도 wrapped img
-#     wrapped_img, minverse = wrapping(img)
-#     cv2.imshow('wrapped', wrapped_img)
+    ## 조감도 wrapped img
+    wrapped_img, minverse = wrapping(img)
+    cv2.imshow('wrapped', wrapped_img)
 
-#     ## 조감도 필터링
-#     w_f_img = color_filter(wrapped_img)
-#     cv2.imshow('w_f_img', w_f_img)
+    ## 조감도 필터링
+    w_f_img = color_filter(wrapped_img)
+    cv2.imshow('w_f_img', w_f_img)
 
-#     ##조감도 필터링 자르기
-#     w_f_r_img = roi(w_f_img)
-#     cv2.imshow('w_f_r_img', w_f_r_img)
+    ##조감도 필터링 자르기
+    w_f_r_img = roi(w_f_img)
+    cv2.imshow('w_f_r_img', w_f_r_img)
 
-#     ## 조감도 선 따기 wrapped img threshold
-#     # _gray = cv2.cvtColor(w_f_r_img, cv2.COLOR_BGR2GRAY)
-#     # ret, thresh = cv2.threshold(_gray, 160, 255, cv2.THRESH_BINARY)
-#     # cv2.imshow('threshold', thresh)
+    # 조감도 선 따기 wrapped img threshold
+    _gray = cv2.cvtColor(w_f_r_img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(_gray, 160, 255, cv2.THRESH_BINARY)
+    cv2.imshow('threshold', thresh)
 
-#     ## 선 분포도 조사 histogram
-#     # leftbase, rightbase = plothistogram(thresh)
-#     # plt.plot(hist)
-#     # plt.show()
+    # 선 분포도 조사 histogram
+    leftbase, rightbase = plothistogram(thresh)
+    # plt.plot(hist)
+    # plt.show()
 
-#     ## histogram 기반 window roi 영역
-#     # draw_info = slide_window_search(thresh, leftbase, rightbase)
-#     # plt.plot(left_fit)
-#     # plt.show()
+    # histogram 기반 window roi 영역
+    draw_info = slide_window_search(thresh, leftbase, rightbase)
+    # plt.plot(left_fit)
+    # plt.show()
 
-#     ## 원본 이미지에 라인 넣기
-#     # meanPts, result = draw_lane_lines(img, thresh, minverse, draw_info)
-#     # cv2.imshow("result", result)
+    # 원본 이미지에 라인 넣기
+    meanPts, result = draw_lane_lines(img, thresh, minverse, draw_info)
+    cv2.imshow("result", result)
  
-#     #filename : date_hour_minutes_seconds
-#     now = datetime.datetime.now().strftime("%d_%H_%M_%S") 
+    #filename : date_hour_minutes_seconds
+    now = datetime.datetime.now().strftime("%d_%H_%M_%S") 
 
-#     key = cv2.waitKey(30)
-#     if key == 27 :  #esc
-#         break
-#     elif key == 99 :  #c
-#         print("Capture")
-#         cv2.imwrite("videos/" + str(now) + ".png", result)
-#     elif key == 114 :  #r
-#         print("Video Record")
-#         record = True
-#         video = cv2.VideoWriter("videos/" + str(now) + ".avi", cv2.VideoWriter_fourcc(*'XVID'), 20.0, frame_size)
-#     elif key == 115 : #s
-#         print("Video Record Stop")
-#         record = False
-#         video.release()
+    key = cv2.waitKey(30)
+    if key == 27 :  #esc
+        break
+    elif key == 99 :  #c
+        print("Capture")
+        cv2.imwrite("videos/" + str(now) + ".png", result)
+    elif key == 114 :  #r
+        print("Video Record")
+        record = True
+        video = cv2.VideoWriter("videos/" + str(now) + ".avi", cv2.VideoWriter_fourcc(*'XVID'), 20.0, frame_size)
+    elif key == 115 : #s
+        print("Video Record Stop")
+        record = False
+        video.release()
         
-#     if record == True :
-#         print("Video Recording...")
-#         video.write(result)
+    if record == True :
+        print("Video Recording...")
+        video.write(result)
 
 
-# if cap.isOpened():
-#     cap.release()
+if cap.isOpened():
+    cap.release()
 
-# cv2.destroyAllWindows()
+cv2.destroyAllWindows()

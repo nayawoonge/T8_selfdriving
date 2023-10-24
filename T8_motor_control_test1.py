@@ -151,7 +151,12 @@ try:
         # The car will drive forward when the "w" key is pressed
         if(char == "w"):
             #print("Forward")
-            forward()
+
+            vel = -100
+            mc.set_speed(1, vel)
+            mc.set_speed(2, vel)
+
+            #forward()
         # The car will reverse when the "s" key is pressed
         elif(char == "s"):
             #print("Backward")
