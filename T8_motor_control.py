@@ -70,74 +70,74 @@ print("a/d: steering")
 
 def brake():
     global vel
-    if(vel > 20):
-        vel -= 20
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)    
-    elif(vel < -20):
-        vel += 20
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)
-    else: 
-        vel = 0
+    vel = 0
+    mc.set_speed(1, vel)
+    mc.set_speed(2, vel)    
 
 def backward():
     global vel
-    if (vel < 0):
-        neutral()
-    #For instant motor activation upon press
-    if (vel > 0 and vel < 40):
-        vel = 40
+    if (vel >= 0 and vel < 50):
+        vel = 50
     if(vel < max):
-        vel += 1
+        vel += 10
     mc.set_speed(1, vel)
     mc.set_speed(2, vel)
 
 def forward():
     global vel
-    if(vel > 0):
-        neutral()
-    #For instant motor activation upon press
-    if (vel < 0 and vel > -40):
-        vel = -40
+    if (vel <= 0 and vel > -50):
+        vel = -50
     if(vel > min):
-        vel -= 1
+        vel -= 10
     mc.set_speed(1, vel)
     mc.set_speed(2, vel)
 
-def neutral():
-    global vel
-    if(vel > 10):
-        vel -= 10
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)    
-    elif(vel < -10):
-        vel += 10
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)
-    else: 
-        vel = 0
+# def neutral():
+#     global vel
+#     if(vel > 10):
+#         vel -= 10
+#         mc.set_speed(1, vel)
+#         mc.set_speed(2, vel)    
+#     elif(vel < -10):
+#         vel += 10
+#         mc.set_speed(1, vel)
+#         mc.set_speed(2, vel)
+#     else: 
+#         vel = 0
 
+# def neutral():
+#     global vel
+#     vel = 0
+#     mc.set_speed(1,vel)
+#     mc.set_speed(2,vel)
 
-def neutral_steer():
-    global vel
-    global count
-    if(vel > 0):
-        count += 1
-        if(count > 15):
-            vel -= 1
-            count = 0
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)    
-    elif(vel < 0):
-        count += 1
-        if(count > 15):
-            vel += 1
-            count = 0
-        mc.set_speed(1, vel)
-        mc.set_speed(2, vel)
-    else: 
-        vel = 0
+# def neutral_steer():
+#     global vel
+#     global count
+#     vel = 0
+#     count = 0
+#     steer = 0
+#     sm.set_speed(1, steer)
+
+# def neutral_steer():
+#     global vel
+#     global count
+#     if(vel > 0):
+#         count += 1
+#         if(count > 15):
+#             vel -= 1
+#             count = 0
+#         mc.set_speed(1, vel)
+#         mc.set_speed(2, vel)    
+#     elif(vel < 0):
+#         count += 1
+#         if(count > 15):
+#             vel += 1
+#             count = 0
+#         mc.set_speed(1, vel)
+#         mc.set_speed(2, vel)
+#     else: 
+#         vel = 0
 
 # Infinite loop that will not end until the user presses the
 # exit key
@@ -161,32 +161,19 @@ try:
         elif(char == "a"):
             #print("Left")
             #global count_steer
-            count_steer += 1
-            if(count_steer > 10):
-                if(steer > 0):
-                    steer = 0
-                    continue
-                if(steer > steer_min):
-                    steer -= 50
-                count_steer = 0
-                
+            count_steer -= 50
+            steer = - 50
             sm.set_speed(1, steer)
-            neutral_steer()
+            # neutral_steer()
 
         # The "d" key will toggle the steering right
         elif(char == "d"):
             #print("Right")
-            count_steer += 1
-            if(count_steer > 10):
-                if(steer < 0):
-                    steer = 0 
-                    pass
-                if (steer < steer_max):
-                    steer += 50
-                count_steer = 0
-
+            #global count_steer
+            count_steer += 50
+            steer = 50
             sm.set_speed(1, steer)
-            neutral_steer()
+            # neutral_steer()
 
         elif(char == "e"):
             #print("Brake")
@@ -195,12 +182,20 @@ try:
         elif(char == "k"):
             #print("NAGA")
             break
-        elif(char == "z"):
-            neutral()
+        else:
+            vel = 0
+        
+        # elif(char == "z"):
+        #     neutral()
+        #     neutral_steer()
             
         print("vel: ", vel*(-1))
-        print("steer: ", steer)
+        print("steer: ", count_steer)
 
+        
+
+
+            
         
 except KeyboardInterrupt:
     pass
