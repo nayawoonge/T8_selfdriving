@@ -6,8 +6,8 @@ import motoron
 import select
 from gpiozero import Motor
 
-mc = motoron.MotoronI2C(address=18, bus=8)
-sm = motoron.MotoronI2C(address=16, bus=8)
+mc = motoron.MotoronI2C(address=18, bus=8) #accelerator
+sm = motoron.MotoronI2C(address=16, bus=8) #steering
 
 # Reset the controller to its default settings, then disable CRC.  The bytes for
 # each of these commands are shown here in case you want to implement them on
@@ -21,6 +21,30 @@ sm.disable_crc()
 # counts as an error.
 mc.clear_reset_flag()  # Bytes: 0xA9 0x00 0x04
 sm.clear_reset_flag()
+
+# Configure motor 1
+mc.set_max_acceleration(1, 0)
+mc.set_max_deceleration(1, 0)
+
+# Configure motor 2
+mc.set_max_acceleration(2, 0)
+mc.set_max_deceleration(2, 0)
+# Configure steering motor/ motor 3
+sm.set_max_acceleration(1, 0)
+sm.set_max_deceleration(1, 0)
+
+vel = 0
+#counter for controlling smooth velocity reduction when steering kekw
+count = 0
+#counter for smooth steering control
+count_steer = 0
+count_neutral_steer = 0
+max = 200
+min = -200
+steer = 0
+steer_max = 200
+steer_min = -200
+
 
 class Car:
     # Assuming two motors for left and right wheels
@@ -131,8 +155,14 @@ def main():
         ret, frame = cap.read()
         if not ret:
             break
+        
+        cv2.imshow("origin img", frame)
 
         left_lane, right_lane, detected_frame = detect_lane(frame)
+
+        #detect_lane frmae
+        cv2.imshow("detect_lane", detected_frame)
+
         detected_frame = resize_image(detected_frame, 50)
 
         center = detected_frame.shape[1] // 2
